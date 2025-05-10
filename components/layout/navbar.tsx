@@ -28,7 +28,7 @@ export function Navbar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center justify-between flex-1 md:justify-start">
-            <span className="text-xl font-bold text-white">Admin Panel</span>
+            <span className="text-xl font-bold text-white">B.Expo</span>
             <button
               className="md:hidden ml-4 text-gray-300 hover:text-white"
               onClick={() => setIsOpen(!isOpen)}
