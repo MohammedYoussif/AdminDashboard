@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,39 +8,46 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { supabase } from '@/lib/supabase';
-import { useEffect } from 'react';
-import { Database } from '@/lib/database.types';
+} from "@/components/ui/dialog";
+import { supabase } from "@/lib/supabase";
+import { useEffect } from "react";
+import { Database } from "@/lib/database.types";
+import { useAuth } from "@/app/auth";
 
 const ITEMS_PER_PAGE = 10;
 
-type User = Database['public']['Tables']['users']['Row'];
+type User = Database["public"]["Tables"]["users"]["Row"];
 
 export default function UsersPage() {
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data: usersData, error, count } = await supabase
-        .from('users')
-        .select('*', { count: 'exact' })
+      const {
+        data: usersData,
+        error,
+        count,
+      } = await supabase
+        .from("users")
+        .select("*", { count: "exact" })
         .range(startIndex, endIndex - 1)
-        .order('name');
+        .order("name");
 
       if (!error && usersData) {
-        setUsers(usersData);
+        setUsers(usersData.filter((e) => e.id !== user.id));
+        console.log;
         setTotalUsers(count || 0);
       }
     };
@@ -53,13 +60,10 @@ export default function UsersPage() {
   const totalPages = Math.ceil(totalUsers / ITEMS_PER_PAGE);
 
   const handleDelete = async (userId: string) => {
-    const { error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', userId);
+    const { error } = await supabase.from("users").delete().eq("id", userId);
 
     if (!error) {
-      setUsers(users.filter(user => user.id !== userId));
+      setUsers(users.filter((user) => user.id !== userId));
     }
   };
 
@@ -86,34 +90,14 @@ export default function UsersPage() {
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>
-                <TableCell>{new Date(user.lastActive).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {new Date(user.last_active).toLocaleDateString()}
+                </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedUser(user)}
-                        >
-                          Edit
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edit User</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4">
-                          <p>Edit form would go here</p>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                        >
+                        <Button variant="destructive" size="sm">
                           Delete
                         </Button>
                       </DialogTrigger>
@@ -125,7 +109,9 @@ export default function UsersPage() {
                           <p>Are you sure you want to delete this user?</p>
                         </div>
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline">Cancel</Button>
+                          <DialogClose>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
                           <Button
                             variant="destructive"
                             onClick={() => handleDelete(user.id)}

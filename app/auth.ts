@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
+import { useEffect } from 'react';
 
 interface AuthState {
   isAuthenticated: boolean;
   role: string | null;
+  isLoading: boolean;
+  user?: any;
+  initializeAuth: () => Promise<void>;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
@@ -11,6 +15,31 @@ interface AuthState {
 export const useAuth = create<AuthState>((set) => ({
   isAuthenticated: false,
   role: null,
+  isLoading: true,
+  initializeAuth: async () => {
+    set({ isLoading: true });
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('*')
+        .ilike('email', session.user.email!)
+        .single();
+
+      if (userData?.role?.toLowerCase() === 'admin') {
+        set({
+          isAuthenticated: true,
+          role: userData.role,
+          user: userData,
+          isLoading: false
+        });
+        return;
+      }
+    }
+
+    set({ isLoading: false });
+  },
   login: async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,

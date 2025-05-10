@@ -13,7 +13,9 @@ export interface Database {
         Row: {
           id: string
           name: string
+          email: string
           role: string
+          created_at: string
           last_active: string
         }
         Insert: {
@@ -33,19 +35,22 @@ export interface Database {
         Row: {
           id: string
           name: string
-          icon: string
+          icon?: string
+          image_url?: string
           user_count: number
+          created_at: string
         }
         Insert: {
           id?: string
           name: string
-          icon: string
+          icon?: string
+          image_url?: string
           user_count?: number
         }
         Update: {
           id?: string
           name?: string
-          icon?: string
+          image_url?: string
           user_count?: number
         }
       }

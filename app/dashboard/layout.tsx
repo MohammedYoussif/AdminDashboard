@@ -2,31 +2,43 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../auth';
-import { Sidebar } from '@/components/layout/sidebar';
+import { useAuth } from '@/app/auth';
+import { Navbar } from '@/components/layout/navbar';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading, initializeAuth } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!isAuthenticated) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  if (!isLoading && !isAuthenticated) {
     return null;
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar />
-      <main className="pl-64">
+      <Navbar />
+      <main>
         <div className="p-8">{children}</div>
       </main>
     </div>
