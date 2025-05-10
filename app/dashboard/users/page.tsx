@@ -46,7 +46,7 @@ export default function UsersPage() {
         .order("name");
 
       if (!error && usersData) {
-        setUsers(usersData.filter((e) => e.id !== user.id));
+        setUsers(usersData);
         console.log;
         setTotalUsers(count || 0);
       }
@@ -85,46 +85,48 @@ export default function UsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>
-                  {new Date(user.last_active).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="destructive" size="sm">
-                          Delete
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Delete User</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4">
-                          <p>Are you sure you want to delete this user?</p>
-                        </div>
-                        <div className="flex justify-end gap-2">
-                          <DialogClose>
-                            <Button variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button
-                            variant="destructive"
-                            onClick={() => handleDelete(user.id)}
-                          >
+            {users
+              .filter((e) => e.id !== user.id)
+              .map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.role}</TableCell>
+                  <TableCell>
+                    {new Date(user.last_active).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
                             Delete
                           </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Delete User</DialogTitle>
+                          </DialogHeader>
+                          <div className="py-4">
+                            <p>Are you sure you want to delete this user?</p>
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <DialogClose>
+                              <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button
+                              variant="destructive"
+                              onClick={() => handleDelete(user.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
